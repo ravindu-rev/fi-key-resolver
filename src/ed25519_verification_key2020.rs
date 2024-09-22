@@ -74,12 +74,12 @@ impl Ed25519VerificationKey2020 {
     }
 
     fn is_valid_key_header(multibase_key: &String, expected_header: &[u8; 2]) -> bool {
-        if multibase_key[0..1].eq(MULTIBASE_BASE58BTC_HEADER) {
+        if !multibase_key[0..1].eq(MULTIBASE_BASE58BTC_HEADER) {
             return false;
         }
 
-        let decoded = bs58::decode(&multibase_key[1..]);
-        let decoded_key_bytes = match decoded.into_vec() {
+        let decoded = multibase::decode(&multibase_key);
+        let (_, decoded_key_bytes) = match decoded {
             Ok(val) => val,
             Err(_error) => return false,
         };

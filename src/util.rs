@@ -1,3 +1,6 @@
+use curve25519_dalek::edwards::CompressedEdwardsY;
+use curve25519_dalek::traits::IsIdentity;
+use curve25519_dalek::MontgomeryPoint;
 use ed25519_dalek::SecretKey as Ed25519SecretKey;
 use fi_common::error::Error;
 use x25519_dalek::StaticSecret as X25519SecretKey;
@@ -18,8 +21,8 @@ pub fn ed25519_to_x25519(secret_key: Ed25519SecretKey) -> X25519SecretKey {
 }
 
 pub fn multibase_decode(header: &[u8; 2], text: &String) -> Result<Vec<u8>, Error> {
-    let value_builder = bs58::decode(&text[1..]);
-    let value = match value_builder.into_vec() {
+    let value_builder = multibase::decode(&text);
+    let (_, value) = match value_builder {
         Ok(val) => val,
         Err(error) => {
             return Err(Error::new(error.to_string().as_str()));
@@ -37,8 +40,7 @@ pub fn multibase_encode(header: &[u8; 2], bytes: &mut Vec<u8>) -> String {
     let mut content_bytes: Vec<u8> = Vec::from(header);
     content_bytes.append(bytes);
 
-    let encoded_builder = bs58::encode(content_bytes);
-    let encoded_content_bytes = encoded_builder.into_string();
+    let encoded_content_bytes = multibase::encode(multibase::Base::Base58Btc, content_bytes);
 
-    return String::from(MULTIBASE_BASE58BTC_HEADER) + encoded_content_bytes.as_str();
+    return encoded_content_bytes;
 }

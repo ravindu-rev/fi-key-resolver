@@ -1,11 +1,9 @@
 use bs58::encode;
 use fi_common::error::Error;
-use serde::{Deserialize, Serialize};
 
 use crate::{
     common::{AgreementKey, KeyPair, VerificationKey},
     ed25519_verification_key2018::Ed25519VerificationKey2018,
-    ed25519_verification_key2020::Ed25519VerificationKey2020,
     util::{ed25519_to_x25519, MULTIBASE_BASE58BTC_HEADER},
 };
 
@@ -117,8 +115,8 @@ fn convert_from_ed_public_key(public_key_base58: &String) -> Result<String, Erro
     Ok(dh_pub_key_bytes_base58_builder.into_string())
 }
 
-fn convert_from_ed_private_key(private_key_multibase: &String) -> Result<String, Error> {
-    let ed_pri_key_bytes_builder = bs58::decode(private_key_multibase);
+fn convert_from_ed_private_key(private_key_base58: &String) -> Result<String, Error> {
+    let ed_pri_key_bytes_builder = bs58::decode(private_key_base58);
 
     let ed_pri_key_bytes = match ed_pri_key_bytes_builder.into_vec() {
         Ok(val) => val,
