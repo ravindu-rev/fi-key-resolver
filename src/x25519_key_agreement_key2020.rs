@@ -60,7 +60,7 @@ impl X25519KeyAgreementKey2020 {
             .eq(Ed25519VerificationKey2020::get_suite_id())
         {
             return Err(Error::new(
-                "'key_pair' is not a Ed25519VerificationKey2018 struct instance",
+                "'key_pair' is not a Ed25519VerificationKey2020 struct instance",
             ));
         }
 

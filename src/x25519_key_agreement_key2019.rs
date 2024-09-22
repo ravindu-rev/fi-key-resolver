@@ -1,8 +1,10 @@
 use bs58::encode;
 use fi_common::error::Error;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     common::{AgreementKey, KeyPair, VerificationKey},
+    ed25519_verification_key2018::Ed25519VerificationKey2018,
     ed25519_verification_key2020::Ed25519VerificationKey2020,
     util::{ed25519_to_x25519, MULTIBASE_BASE58BTC_HEADER},
 };
@@ -49,7 +51,7 @@ impl X25519KeyAgreementKey2019 {
     ) -> Result<X25519KeyAgreementKey2019, Error> {
         if !key_pair
             .get_current_suite_id()
-            .eq(Ed25519VerificationKey2020::get_suite_id())
+            .eq(Ed25519VerificationKey2018::get_suite_id())
         {
             return Err(Error::new(
                 "'key_pair' is not a Ed25519VerificationKey2018 struct instance",
@@ -146,11 +148,11 @@ impl AgreementKey for X25519KeyAgreementKey2019 {
                 true => Some(String::from(SUITE_CONTEXT)),
                 false => None,
             },
-            public_key_base58: match private_key {
+            public_key_base58: match public_key {
                 true => Some(self.public_key_base58.clone()),
                 false => None,
             },
-            private_key_base58: match public_key {
+            private_key_base58: match private_key {
                 true => self.private_key_base58.clone(),
                 false => None,
             },
