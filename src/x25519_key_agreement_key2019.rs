@@ -4,7 +4,10 @@ use fi_common::error::Error;
 use crate::{
     common::{AgreementKey, KeyPair, VerificationKey},
     ed25519_verification_key2018::Ed25519VerificationKey2018,
-    util::{ed25519_to_x25519, MULTIBASE_BASE58BTC_HEADER},
+    util::{
+        ed25519_to_x25519_privkey, ed25519_to_x25519_pubkey, get_key_bytes_from_key_pair_bytes,
+        MULTIBASE_BASE58BTC_HEADER,
+    },
 };
 
 pub const SUITE_ID: &str = "X25519KeyAgreementKey2019";
@@ -95,20 +98,23 @@ impl X25519KeyAgreementKey2019 {
 fn convert_from_ed_public_key(public_key_base58: &String) -> Result<String, Error> {
     let ed_pub_key_bytes_builder = bs58::decode(public_key_base58);
 
-    let ed_pub_key_bytes = match ed_pub_key_bytes_builder.into_vec() {
+    let mut ed_pub_key_bytes = match ed_pub_key_bytes_builder.into_vec() {
         Ok(val) => val,
         Err(error) => return Err(Error::new(error.to_string().as_str())),
     };
 
-    let ed25519_secret_key: [u8; 32] = match ed_pub_key_bytes.try_into() {
-        Ok(val) => val,
-        Err(_error) => {
-            return Err(Error::new("'ed25519_secret_key' length did not match"));
-        }
-    };
+    let ed25519_pub_key: [u8; 32] =
+        match get_key_bytes_from_key_pair_bytes(&mut ed_pub_key_bytes, true) {
+            Ok(val) => val,
+            Err(error) => {
+                return Err(error);
+            }
+        };
 
-    let dh_pub_key_bytes =
-        x25519_dalek::x25519(ed25519_secret_key, x25519_dalek::X25519_BASEPOINT_BYTES);
+    let dh_pub_key_bytes = match ed25519_to_x25519_pubkey(&ed25519_pub_key) {
+        Ok(val) => val,
+        Err(error) => return Err(error),
+    };
 
     let dh_pub_key_bytes_base58_builder = encode(dh_pub_key_bytes);
 
@@ -118,21 +124,22 @@ fn convert_from_ed_public_key(public_key_base58: &String) -> Result<String, Erro
 fn convert_from_ed_private_key(private_key_base58: &String) -> Result<String, Error> {
     let ed_pri_key_bytes_builder = bs58::decode(private_key_base58);
 
-    let ed_pri_key_bytes = match ed_pri_key_bytes_builder.into_vec() {
+    let mut ed_pri_key_bytes = match ed_pri_key_bytes_builder.into_vec() {
         Ok(val) => val,
         Err(error) => return Err(Error::new(error.to_string().as_str())),
     };
 
-    let ed25519_secret_key: [u8; 32] = match ed_pri_key_bytes.try_into() {
-        Ok(val) => val,
-        Err(_error) => {
-            return Err(Error::new("'ed25519_secret_key' length did not match"));
-        }
-    };
+    let ed25519_priv_key: [u8; 32] =
+        match get_key_bytes_from_key_pair_bytes(&mut ed_pri_key_bytes, false) {
+            Ok(val) => val,
+            Err(error) => {
+                return Err(error);
+            }
+        };
 
-    let dh_privkey_bytes = ed25519_to_x25519(ed25519_secret_key);
+    let dh_priv_key_bytes = ed25519_to_x25519_privkey(&ed25519_priv_key);
 
-    let dh_priv_key_bytes_base58_builder = encode(dh_privkey_bytes);
+    let dh_priv_key_bytes_base58_builder = encode(dh_priv_key_bytes);
 
     Ok(dh_priv_key_bytes_base58_builder.into_string())
 }

@@ -10,7 +10,7 @@ use crate::{
 
 const DID_CONTEXT_URL: &str = "https://www.w3.org/ns/did/v1";
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct DidDocument {
     #[serde(rename = "@context")]
     pub context: Vec<String>,

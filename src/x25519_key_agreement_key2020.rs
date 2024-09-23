@@ -3,9 +3,11 @@ use fi_common::error::Error;
 use crate::{
     common::{AgreementKey, KeyPair, VerificationKey},
     ed25519_verification_key2020::Ed25519VerificationKey2020,
-    util::{self, multibase_decode, multibase_encode, MULTIBASE_BASE58BTC_HEADER},
+    util::{
+        ed25519_to_x25519_privkey, ed25519_to_x25519_pubkey, get_key_bytes_from_key_pair_bytes,
+        multibase_decode, multibase_encode, MULTIBASE_BASE58BTC_HEADER,
+    },
 };
-use sha2::{Digest, Sha512};
 
 pub const SUITE_ID: &str = "X25519KeyAgreementKey2020";
 
@@ -107,59 +109,52 @@ impl X25519KeyAgreementKey2020 {
 }
 
 fn convert_from_ed_public_key(public_key_multibase: &String) -> Result<String, Error> {
-    let ed_pub_key_bytes =
+    let mut ed_pub_key_bytes =
         match multibase_decode(&MULTICODEC_ED25519_PUB_HEADER, public_key_multibase) {
             Ok(val) => val,
             Err(error) => return Err(error),
         };
 
-    let ed25519_secret_key: [u8; 32] = match get_ed25519_secret_key(ed_pub_key_bytes).try_into() {
-        Ok(val) => val,
-        Err(_error) => {
-            return Err(Error::new("'ed25519_secret_key' length did not match"));
-        }
-    };
+    let ed25519_pub_key: [u8; 32] =
+        match get_key_bytes_from_key_pair_bytes(&mut ed_pub_key_bytes, true) {
+            Ok(val) => val,
+            Err(error) => {
+                return Err(error);
+            }
+        };
 
-    let dh_pubkey_bytes = util::ed25519_to_x25519(ed25519_secret_key);
+    let dh_pub_key_bytes = match ed25519_to_x25519_pubkey(&ed25519_pub_key) {
+        Ok(val) => val,
+        Err(error) => return Err(error),
+    };
 
     Ok(multibase_encode(
         &MULTICODEC_X25519_PUB_HEADER,
-        &mut dh_pubkey_bytes.as_bytes().to_vec(),
+        &mut dh_pub_key_bytes.to_vec(),
     ))
 }
 
 fn convert_from_ed_private_key(private_key_multibase: &String) -> Result<String, Error> {
-    let ed_pri_key_bytes =
+    let mut ed_pri_key_bytes =
         match multibase_decode(&MULTICODEC_ED25519_PRIV_HEADER, private_key_multibase) {
             Ok(val) => val,
             Err(error) => return Err(error),
         };
 
-    let ed25519_secret_key: [u8; 32] = match get_ed25519_secret_key(ed_pri_key_bytes).try_into() {
-        Ok(val) => val,
-        Err(_error) => {
-            return Err(Error::new("'ed25519_secret_key' length did not match"));
-        }
-    };
+    let ed25519_priv_key: [u8; 32] =
+        match get_key_bytes_from_key_pair_bytes(&mut ed_pri_key_bytes, false) {
+            Ok(val) => val,
+            Err(error) => {
+                return Err(error);
+            }
+        };
 
-    let dh_privkey_bytes = util::ed25519_to_x25519(ed25519_secret_key);
+    let dh_priv_key_bytes = ed25519_to_x25519_privkey(&ed25519_priv_key);
 
     Ok(multibase_encode(
         &MULTICODEC_X25519_PRIV_HEADER,
-        &mut dh_privkey_bytes.as_bytes().to_vec(),
+        &mut dh_priv_key_bytes.to_vec(),
     ))
-}
-
-fn get_ed25519_secret_key(ed_privkey_bytes: Vec<u8>) -> Vec<u8> {
-    let mut hasher = Sha512::new();
-    hasher.update(ed_privkey_bytes);
-    let mut result: Vec<u8> = hasher.finalize().to_vec();
-
-    while result.len() < 32 {
-        result.push(0);
-    }
-
-    result
 }
 
 impl AgreementKey for X25519KeyAgreementKey2020 {
