@@ -3,6 +3,10 @@ name = "key-resolver"
 version = "0.0.1"
 edition = "2021"
 authors = ["Ravindu Wijegunawardhana <ravindu.w@gmail.com>"]
+description = "Get ed25519 public key from did id" 
+readme = "README.md"
+license = "MIT OR Apache-2.0" 
+repository = "https://github.com/ravindu-rev/key-resolver.git"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
