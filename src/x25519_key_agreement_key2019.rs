@@ -1,8 +1,10 @@
 use bs58::encode;
-use fi_common::error::Error;
+use fi_common::{
+    error::Error,
+    keys::{AgreementKey, KeyPair, VerificationKey},
+};
 
 use crate::{
-    common::{AgreementKey, KeyPair, VerificationKey},
     ed25519_verification_key2018::Ed25519VerificationKey2018,
     util::{
         ed25519_to_x25519_privkey, ed25519_to_x25519_pubkey, get_key_bytes_from_key_pair_bytes,

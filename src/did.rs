@@ -1,38 +1,22 @@
-use fi_common::error::Error;
-use serde::{Deserialize, Serialize};
+use fi_common::{
+    did::{DidDocument, KeyPairToDidDocument, DID_CONTEXT_URL},
+    error::Error,
+    keys::{AgreementKey, VerificationKey},
+};
 
 use crate::{
-    common::{AgreementKey, KeyPair, VerificationKey},
     ed25519_verification_key2018, ed25519_verification_key2020,
     x25519_key_agreement_key2019::X25519KeyAgreementKey2019,
     x25519_key_agreement_key2020::X25519KeyAgreementKey2020,
 };
 
-const DID_CONTEXT_URL: &str = "https://www.w3.org/ns/did/v1";
+pub struct DidDoc(DidDocument);
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct DidDocument {
-    #[serde(rename = "@context")]
-    pub context: Vec<String>,
-    pub id: String,
-    #[serde(rename = "verificationMethod")]
-    pub verification_method: Vec<KeyPair>,
-    pub authentication: Vec<String>,
-    #[serde(rename = "assertionMethod")]
-    pub assertion_method: Vec<String>,
-    #[serde(rename = "capabilityDelegation")]
-    pub capability_delegation: Vec<String>,
-    #[serde(rename = "capabilityInvocation")]
-    pub capability_invocation: Vec<String>,
-    #[serde(rename = "keyAgreement")]
-    pub key_agreement: Vec<KeyPair>,
-}
-
-impl DidDocument {
-    pub fn key_pair_to_did_doc(
+impl KeyPairToDidDocument for DidDoc {
+    fn key_pair_to_did_doc(
         key_pair: &Box<dyn VerificationKey>,
         fingerprint: &str,
-    ) -> Result<DidDocument, fi_common::error::Error> {
+    ) -> Result<DidDocument, Error> {
         let did = format!("did:key:{}", fingerprint);
 
         let mut contexts: Vec<String> = Vec::from([String::from(DID_CONTEXT_URL)]);
@@ -93,20 +77,5 @@ impl DidDocument {
         };
 
         Ok(did_doc)
-    }
-
-    pub fn get_key(&self, key_id_fragment: &str) -> Result<KeyPair, Error> {
-        let key_id = format!("{}#{}", self.id, key_id_fragment);
-
-        let v_id = self.verification_method[0].id.clone();
-
-        let public_key: KeyPair;
-        if v_id.is_some_and(|val| val.eq(&key_id)) {
-            public_key = self.verification_method[0].clone();
-        } else {
-            public_key = self.key_agreement[0].clone();
-        }
-
-        Ok(public_key)
     }
 }

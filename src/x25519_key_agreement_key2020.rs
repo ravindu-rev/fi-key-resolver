@@ -1,14 +1,13 @@
 use fi_common::error::Error;
 
 use crate::{
-    common::{AgreementKey, KeyPair, VerificationKey},
     ed25519_verification_key2020::Ed25519VerificationKey2020,
     util::{
         ed25519_to_x25519_privkey, ed25519_to_x25519_pubkey, get_key_bytes_from_key_pair_bytes,
         multibase_decode, multibase_encode, MULTIBASE_BASE58BTC_HEADER,
     },
 };
-
+use fi_common::keys::{AgreementKey, KeyPair, VerificationKey};
 pub const SUITE_ID: &str = "X25519KeyAgreementKey2020";
 
 pub const SUITE_CONTEXT: &str = "https://w3id.org/security/suites/x25519-2020/v1";

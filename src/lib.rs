@@ -1,8 +1,8 @@
-use common::{KeyPair, VerificationKey};
-use did::DidDocument;
+use did::DidDoc;
+use fi_common::did::{DidDocument, KeyPairToDidDocument};
 use fi_common::error::Error;
+use fi_common::keys::{KeyPair, VerificationKey};
 
-pub mod common;
 pub mod did;
 pub mod ed25519_verification_key2018;
 pub mod ed25519_verification_key2020;
@@ -50,14 +50,14 @@ pub fn resolve_did(
         }
     };
 
-    let did_doc = match DidDocument::key_pair_to_did_doc(&verification_key_pair, fingerprint) {
+    let did_doc = match DidDoc::key_pair_to_did_doc(&verification_key_pair, fingerprint) {
         Ok(val) => val,
         Err(error) => return Err(error),
     };
 
     if splitted_did.len() > 1 {
         let key_id_fragment = splitted_did[1];
-        let key = match did_doc.get_key(key_id_fragment) {
+        let key = match did_doc.get_key_pair(key_id_fragment) {
             Ok(val) => val,
             Err(error) => return Err(error),
         };

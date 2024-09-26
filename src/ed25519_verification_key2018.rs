@@ -1,6 +1,7 @@
-use fi_common::error::Error;
-
-use crate::common::{KeyPair, VerificationKey};
+use fi_common::{
+    error::Error,
+    keys::{KeyPair, VerificationKey},
+};
 
 pub(crate) const SUITE_ID: &str = "Ed25519VerificationKey2018";
 pub(crate) const SUITE_CONTEXT: &str = "https://w3id.org/security/suites/ed25519-2018/v1";
