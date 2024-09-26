@@ -1,4 +1,4 @@
-use key_resolver::resolve_did;
+use fi_key_resolver::resolve_did;
 
 #[test]
 pub fn test_did_key_1() {
