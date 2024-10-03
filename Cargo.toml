@@ -1,6 +1,6 @@
 [package]
 name = "fi-key-resolver"
-version = "0.0.2"
+version = "0.0.3"
 edition = "2021"
 authors = ["Ravindu Wijegunawardhana <ravindu.w@gmail.com>"]
 description = "Get ed25519 public key from did id" 
