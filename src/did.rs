@@ -67,13 +67,14 @@ impl KeyPairToDidDocument for DidDoc {
 
         let did_doc = DidDocument {
             id: did,
-            key_agreement: Vec::from([public_dh_key]),
+            key_agreement: Some(Vec::from([public_dh_key])),
             context: contexts,
-            verification_method: Vec::from([public_ed_key]),
-            assertion_method: Vec::from([public_ed_key_id.clone()]),
-            authentication: Vec::from([public_ed_key_id.clone()]),
-            capability_delegation: Vec::from([public_ed_key_id.clone()]),
-            capability_invocation: Vec::from([public_ed_key_id]),
+            verification_method: Some(Vec::from([public_ed_key])),
+            assertion_method: Some(Vec::from([public_ed_key_id.clone()])),
+            authentication: Some(Vec::from([public_ed_key_id.clone()])),
+            capability_delegation: Some(Vec::from([public_ed_key_id.clone()])),
+            capability_invocation: Some(Vec::from([public_ed_key_id])),
+            services: None,
         };
 
         Ok(did_doc)

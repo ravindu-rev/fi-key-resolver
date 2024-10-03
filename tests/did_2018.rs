@@ -18,17 +18,16 @@ pub fn test_did_key_1() {
 
     if did_doc_option.is_some() {
         let did_doc = did_doc_option.unwrap();
-        println!("{:#?}", did_doc);
 
         assert_eq!(
-            did_doc.verification_method[0]
+            did_doc.verification_method.unwrap()[0]
                 .public_key_base58
                 .clone()
                 .expect("Public key base 58 not found"),
             verification_key_public_key_base58
         );
 
-        let key_pair = &did_doc.key_agreement[0];
+        let key_pair = &did_doc.key_agreement.unwrap()[0];
 
         assert_eq!(
             key_pair
@@ -58,17 +57,16 @@ pub fn test_did_key_2() {
 
     if did_doc_option.is_some() {
         let did_doc = did_doc_option.unwrap();
-        println!("{:#?}", did_doc);
 
         assert_eq!(
-            did_doc.verification_method[0]
+            did_doc.verification_method.unwrap()[0]
                 .public_key_base58
                 .clone()
                 .expect("Public key base 58 not found"),
             verification_key_public_key_base58
         );
 
-        let key_pair = &did_doc.key_agreement[0];
+        let key_pair = &did_doc.key_agreement.unwrap()[0];
 
         assert_eq!(
             key_pair

@@ -162,7 +162,7 @@ impl AgreementKey for X25519KeyAgreementKey2020 {
             id: self.id.clone(),
             _type: self._type.clone(),
             context: match include_context {
-                true => Some(String::from(SUITE_CONTEXT)),
+                true => Some(Vec::from([String::from(SUITE_CONTEXT)])),
                 false => None,
             },
             public_key_base58: None,
@@ -175,8 +175,16 @@ impl AgreementKey for X25519KeyAgreementKey2020 {
                 true => Some(self.public_key_multibase.clone()),
                 false => None,
             },
-            revoked: self.revoked,
+            revoked: Some(self.revoked),
             controller: self.controller.clone(),
+            blockchain_account_id: None,
+            public_key_hex: None,
+            public_key_base64: None,
+            public_key_pem: None,
+            private_key_hex: None,
+            private_key_base64: None,
+            private_key_pem: None,
+            value: None,
         }
     }
 
