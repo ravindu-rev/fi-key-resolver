@@ -175,6 +175,8 @@ impl AgreementKey for X25519KeyAgreementKey2019 {
             private_key_base64: None,
             private_key_pem: None,
             value: None,
+            ethereum_address: None,
+            public_key_jwk: None,
         }
     }
 
