@@ -1,8 +1,11 @@
+use std::str::FromStr;
+
 use fi_common::{
     did::{DidDocument, KeyPairToDidDocument, DID_CONTEXT_URL},
     error::Error,
     keys::{AgreementKey, VerificationKey},
 };
+use serde_json::Value;
 
 use crate::{
     ed25519_verification_key2018, ed25519_verification_key2020,
@@ -19,7 +22,7 @@ impl KeyPairToDidDocument for DidDoc {
     ) -> Result<DidDocument, Error> {
         let did = format!("did:key:{}", fingerprint);
 
-        let mut contexts: Vec<String> = Vec::from([String::from(DID_CONTEXT_URL)]);
+        let mut contexts: Vec<Value> = Vec::from([Value::from_str(DID_CONTEXT_URL).unwrap()]);
 
         let agreement_key: Box<dyn AgreementKey> = match key_pair.get_current_suite_id() {
             ed25519_verification_key2018::SUITE_ID => {
@@ -29,8 +32,8 @@ impl KeyPairToDidDocument for DidDoc {
                         Err(error) => return Err(error),
                     };
 
-                contexts.push(String::from(key_pair.get_current_suite_context()));
-                contexts.push(String::from(agreement_key.get_current_suite_context()));
+                contexts.push(Value::from_str(key_pair.get_current_suite_context()).unwrap());
+                contexts.push(Value::from_str(agreement_key.get_current_suite_context()).unwrap());
 
                 Box::new(agreement_key)
             }
@@ -40,8 +43,8 @@ impl KeyPairToDidDocument for DidDoc {
                         Ok(val) => val,
                         Err(error) => return Err(error),
                     };
-                contexts.push(String::from(key_pair.get_current_suite_context()));
-                contexts.push(String::from(agreement_key.get_current_suite_context()));
+                contexts.push(Value::from_str(key_pair.get_current_suite_context()).unwrap());
+                contexts.push(Value::from_str(agreement_key.get_current_suite_context()).unwrap());
 
                 Box::new(agreement_key)
             }
