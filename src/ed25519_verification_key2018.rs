@@ -143,6 +143,7 @@ impl VerificationKey for Ed25519VerificationKey2018 {
             value: None,
             ethereum_address: None,
             public_key_jwk: None,
+            private_key_jwk: None,
         }
     }
 
